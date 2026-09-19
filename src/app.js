@@ -2,26 +2,24 @@ const express = require("express");
 
 const app = express();
 
-app.get("/user/:user" , (req,res) => {
-    console.log(req.params);
-    res.send("get call")
+app.use("/user" , (req,res,next) => {
+    //Route Handler
+    console.log("1st Route Handler for route user")
+    next();
+    // res.send("1st Route Handler for route user");
+},(req,res,next) => {
+    console.log("2nd Route Handler for route user")
+    res.send("2nd Route Handler for route user");
+    next();
+},(req,res,next) => {
+    console.log("3rd Route Handler for route user")
+    // res.send("3rd Route Handler for route user");
+    // next();
+},(req,res,next) => {
+    console.log("4th Route Handler for route user")
+    // res.send("4th Route Handler for route user");
+    // next();
 })
-app.get("/user" , (req,res) => {
-    console.log(req.query)
-    res.send("get call 2")
-})
-app.get("/ab{*any}c" , (req,res) => {
-    res.send("get call ?")
-})
-
-app.get(/^\/qw+e$/ , (req,res) => {
-    res.send("get call +")
-})
-
-app.get(/.*fly$/ , (req,res) => {
-    res.send("get call regx")
-})
-
 
 
 app.listen(7000, () => {
