@@ -2,37 +2,26 @@ const express = require("express");
 
 const app = express();
 
-// app.use("/test/2" , (req , res) => {
-//     res.send("Hello Test 2")
-// })
-
-// app.use("/hello" , (req , res) => {
-//     res.send("Hello Hello")
-// })
-//Work as wild card order is important
-// app.use("/" , (req , res) => {
-//     res.send("Dashboard")
-// })
-
-
-
-app.use("/test", (req, res) => {
-    res.send("Hello Test")
-})
-
-//order matter if at last then get post delete call happen but it at start then handle all HTTP methods calls
-app.use("/user" , (req,res) => {
-    res.send("use method")
-})
-app.get("/user" , (req,res) => {
+app.get("/user/:user" , (req,res) => {
+    console.log(req.params);
     res.send("get call")
 })
-app.post("/user" , (req,res) => {
-    res.send("post call")
+app.get("/user" , (req,res) => {
+    console.log(req.query)
+    res.send("get call 2")
 })
-app.delete("/user" , (req,res) => {
-    res.send("delete call")
+app.get("/ab{*any}c" , (req,res) => {
+    res.send("get call ?")
 })
+
+app.get(/^\/qw+e$/ , (req,res) => {
+    res.send("get call +")
+})
+
+app.get(/.*fly$/ , (req,res) => {
+    res.send("get call regx")
+})
+
 
 
 app.listen(7000, () => {
