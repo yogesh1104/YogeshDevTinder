@@ -12,7 +12,7 @@ app.post("/signup", async (req, res) => {
         await user.save();
         res.send("user added successfully!")
     } catch (error) {
-        res.status(401).send("Something went wrong")
+        res.status(401).send("Something went wrong : " + error.message)
     }
 
 })
@@ -27,7 +27,7 @@ app.get("/user", async (req, res) => {
             res.send(user)
         }
     } catch (error) {
-        res.status(500).send("Something went wrong")
+        res.status(500).send("Something went wrong"+ error.message)
     }
 })
 
@@ -41,7 +41,7 @@ app.get("/feed", async (req, res) => {
             res.send(users)
         }
     } catch (error) {
-        res.status(500).send("Something went wrong")
+        res.status(500).send("Something went wrong"+ error.message)
     }
 })
 
@@ -56,7 +56,7 @@ app.delete("/user" , async (req,res) => {
         res.send("user deleted successfully")
         console.log("deleted User => " , user)
     } catch (error) {
-        res.status(500).send("Something went wrong")
+        res.status(500).send("Something went wrong"+ error.message)
     }
 })
 
@@ -71,12 +71,13 @@ app.patch("/user" , async (req,res) => {
         //     returnDocument : 'before' // you can use after also
         // })
         const user = await User.findOneAndUpdate({emailId : inputEmail} , data , {
-            returnDocument : 'before' 
+            returnDocument : 'before',
+            runValidators : true
         })
         res.send("user updated successfully")
         console.log("Before updated data => " , user)
     } catch (error) {
-        res.status(500).send("Something went wrong")
+        res.status(500).send("Something went wrong"+ error.message)
     }
 })
 
