@@ -3,15 +3,11 @@ const { connectDb } = require("./config/database");
 const User = require("./models/user");
 const app = express();
 
+app.use(express.json())
+
 //user k schema se match hoga tabhi data enter hoga
 app.post("/signup", async (req, res) => {
-    const user = new User({
-        firstName: "Yogesh",
-        lastName: "Gupta",
-        // email: "yogesh@gupta.com",  ye entere ni huaa kyu ki match nii huaa
-        emailId: "yogesh@gupta.com",
-        password: "Yogesh@123"
-    })
+    const user = new User(req.body)
     try {
         await user.save();
         res.send("user added successfully!")
