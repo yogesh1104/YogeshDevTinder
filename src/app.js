@@ -1,24 +1,19 @@
 const express = require("express");
 
+const {auth , user} = require("./middlewares/auth")
 const app = express();
 
-app.use("/user" , [(req,res,next) => {
-    //Route Handler
-    console.log("1st Route Handler for route user")
-    next();
-    // res.send("1st Route Handler for route user");
+
+app.get("/admin" , auth)
+
+app.get("/user" , user , (req,res) => {
+    res.send("user passed middleware")
+})
+
+app.get("/admin/getStatus" , (req,res,next) => {
+    res.send("admin Authorized")
 },(req,res,next) => {
-    console.log("2nd Route Handler for route user")
-    res.send("2nd Route Handler for route user");
-    next();
-}],(req,res,next) => {
-    console.log("3rd Route Handler for route user")
-    // res.send("3rd Route Handler for route user");
-    // next();
-},(req,res,next) => {
-    console.log("4th Route Handler for route user")
-    // res.send("4th Route Handler for route user");
-    // next();
+    res.send("admin auth")
 })
 
 
