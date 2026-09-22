@@ -3,19 +3,23 @@ const { connectDb } = require("./config/database");
 const User = require("./models/user");
 const app = express();
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser')
 app.use(express.json())
-const {validatoSignUpData , validateEmailId} = require("./utils/validation")
+app.use(cookieParser())
+const { validatoSignUpData, validateEmailId } = require("./utils/validation")
+const jwt = require("jsonwebtoken")
+const {userAuth} = require("./middlewares/auth")
 //user k schema se match hoga tabhi data enter hoga
 app.post("/signup", async (req, res) => {
-    
+
     try {
         //validation of signup data
         validatoSignUpData(req)
         //Encrpt password data
-        const {firstName , lastName , emailId , password} = req.body;
-        const passwordHash = await bcrypt.hash(password , 10)
+        const { firstName, lastName, emailId, password } = req.body;
+        const passwordHash = await bcrypt.hash(password, 10)
         const user = new User({
-            firstName , lastName , emailId , password : passwordHash
+            firstName, lastName, emailId, password: passwordHash
         })
         await user.save();
         res.send("user added successfully!")
@@ -27,16 +31,19 @@ app.post("/signup", async (req, res) => {
 
 //login api
 
-app.post("/login" , async (req,res) => {
+app.post("/login", async (req, res) => {
     try {
-        const {emailId , password} = req.body;
+        const { emailId, password } = req.body;
         validateEmailId(emailId)
-        const user = await User.findOne({emailId : emailId})
-        if(!user){
+        const user = await User.findOne({ emailId: emailId })
+        if (!user) {
             throw new Error("Please Enter correct EmailId")
-        }else if(!await bcrypt.compare(password , user.password)){
+        } else if (!await user.isPasswordValid(password)) {
             throw new Error("Enter correct Password")
-        }else{
+        } else {
+            //create JWT
+            const token = user.getJWT();
+            res.cookie("token", token , { expires: new Date(Date.now() + 1 * 3600000) })
             res.send("Login Successfully!")
         }
     } catch (error) {
@@ -44,6 +51,16 @@ app.post("/login" , async (req,res) => {
     }
 
 })
+
+app.get("/profile",userAuth , async (req, res) => {
+    try {
+        const user = req.user
+        res.send(user)
+    } catch (error) {
+        res.status(401).send("Something went wrong : " + error.message)
+    }
+})
+
 
 app.get("/user", async (req, res) => {
     const userEmail = req.body.emailId
@@ -102,7 +119,7 @@ app.patch("/user/:userId", async (req, res) => {
         if (!isUpdateAllowed) {
             throw new Error("Update not Allowed")
         }
-        if(req.body.skills.length > 10){
+        if (req.body.skills.length > 10) {
             throw new Error("Skill not more then 10")
         }
         // const user = await User.findOneAndUpdate({emailId : inputEmail} , data , {
