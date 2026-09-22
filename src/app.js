@@ -2,15 +2,43 @@ const express = require("express");
 const { connectDb } = require("./config/database");
 const User = require("./models/user");
 const app = express();
-
+const bcrypt = require('bcrypt');
 app.use(express.json())
-
+const {validatoSignUpData , validateEmailId} = require("./utils/validation")
 //user k schema se match hoga tabhi data enter hoga
 app.post("/signup", async (req, res) => {
-    const user = new User(req.body)
+    
     try {
+        //validation of signup data
+        validatoSignUpData(req)
+        //Encrpt password data
+        const {firstName , lastName , emailId , password} = req.body;
+        const passwordHash = await bcrypt.hash(password , 10)
+        const user = new User({
+            firstName , lastName , emailId , password : passwordHash
+        })
         await user.save();
         res.send("user added successfully!")
+    } catch (error) {
+        res.status(401).send("Something went wrong : " + error.message)
+    }
+
+})
+
+//login api
+
+app.post("/login" , async (req,res) => {
+    try {
+        const {emailId , password} = req.body;
+        validateEmailId(emailId)
+        const user = await User.findOne({emailId : emailId})
+        if(!user){
+            throw new Error("Please Enter correct EmailId")
+        }else if(!await bcrypt.compare(password , user.password)){
+            throw new Error("Enter correct Password")
+        }else{
+            res.send("Login Successfully!")
+        }
     } catch (error) {
         res.status(401).send("Something went wrong : " + error.message)
     }
