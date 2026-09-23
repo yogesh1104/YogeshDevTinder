@@ -11,7 +11,6 @@ requestRouter.post("/request/send/:status/:userId" , userAuth , async (req,res) 
         const status = req.params.status
         const toUserId = req.params.userId
         const fromUserId = req.user._id
-        console.log("fromUserId:", fromUserId.toString(), "toUserId:", toUserId.toString());
         if (!allowedStatus.includes(status)) {
             throw new Error("Status is Invalid")
         }
@@ -36,9 +35,36 @@ requestRouter.post("/request/send/:status/:userId" , userAuth , async (req,res) 
             fromUserId , toUserId , status
         })
         await connectionRequest.save()
-        res.send("connection done")
+        res.send("connection sent successfully")
     } catch (error) {
         res.status(400).send("Something went wrong : " + error.message)
+    }
+})
+
+requestRouter.post("/request/review/:status/:requestId" , userAuth ,async  (req,res) => {
+    try {
+        const {requestId} = req.params
+        const {status} = req.params
+        const allowedStatus = ["accepted" , "rejected"];
+        if (!allowedStatus.includes(status)) {
+            throw new Error("Status is Invalid")
+        }
+        if (!mongoose.Types.ObjectId.isValid(requestId)) {
+            return res.status(400).json({ error: "Invalid requestId format." });
+        }
+        const connectionRequest = await ConnectionRequest.findOne({
+            toUserId : req.user._id,
+            status : "interested"
+        })
+        if(!connectionRequest){
+            return res.status(400).json({message : "Invalid request"})
+        }
+        connectionRequest.status = status;
+        await connectionRequest.save();;
+        res.send("Connection " + status)
+
+    } catch (error) {
+        res.status(400).send("ERROR " + error.message)
     }
 })
 
