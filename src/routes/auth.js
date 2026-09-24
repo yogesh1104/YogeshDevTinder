@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt")
 const User = require("../models/user");
-const { validatoSignUpData, validateEmailId } = require("../../../../../../../home/yoro/Project/DevTinder/src/utils/validation");
+const { validatoSignUpData, validateEmailId } = require("../utils/validation");
 const authRouter = express.Router();
 
 authRouter.post("/signup", async (req, res) => {
