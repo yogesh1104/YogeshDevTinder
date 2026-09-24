@@ -4,7 +4,7 @@ const ConnectionRequest = require("../models/connectionRequest")
 
 const userRouter = express.Router();
 const User = require("../models/user")
-const USER_SAFE_DATA = "firstName lastName about age gender about"
+const USER_SAFE_DATA = "firstName lastName about age gender  photoUrl"
 
 // get the all the pending request
 userRouter.get("/user/request/receive" , userAuth , async (req , res) => {
@@ -84,7 +84,6 @@ userRouter.get("/user/feed" , userAuth , async (req, res) => {
                 hideUserForFeed.add(req.toUserId.toString())
             })
         }
-        console.log(skip)
         const user = await User.find({
             $and : [
                 {_id : {$nin : Array.from(hideUserForFeed)}},

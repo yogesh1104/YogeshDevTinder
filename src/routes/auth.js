@@ -16,7 +16,9 @@ authRouter.post("/signup", async (req, res) => {
             firstName, lastName, emailId, password: passwordHash
         })
         await user.save();
-        res.send("user added successfully!")
+        const token = user.getJWT();
+        res.cookie("token", token, { expires: new Date(Date.now() + 1 * 3600000) })
+        res.json({ message: "user added successfully!", data: user })
     } catch (error) {
         res.status(401).send("Something went wrong : " + error.message)
     }
@@ -27,6 +29,7 @@ authRouter.post("/login", async (req, res) => {
     try {
         const { emailId, password } = req.body;
         validateEmailId(emailId)
+        console.log("email", emailId)
         const user = await User.findOne({ emailId: emailId })
         if (!user) {
             throw new Error("Please Enter correct EmailId")
@@ -35,8 +38,9 @@ authRouter.post("/login", async (req, res) => {
         } else {
             //create JWT
             const token = user.getJWT();
-            res.cookie("token", token , { expires: new Date(Date.now() + 1 * 3600000) })
-            res.send("Login Successfully!")
+            res.cookie("token", token, { expires: new Date(Date.now() + 1 * 3600000) })
+            res.json({ message: "Login Successfully", data: user })
+
         }
     } catch (error) {
         res.status(401).send("Something went wrong : " + error.message)
@@ -44,9 +48,9 @@ authRouter.post("/login", async (req, res) => {
 
 })
 
-authRouter.post("/logout" , (req,res) => {
+authRouter.post("/logout", (req, res) => {
     try {
-        res.cookie("token" , "" , {expires : new Date(0)})
+        res.cookie("token", "", { expires: new Date(0) })
         res.send("Logout Successfully!")
     } catch (error) {
         res.status(401).send("Something went wrong : " + error.message)
